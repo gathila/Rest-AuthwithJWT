@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import tacos.domain.User;
+import tacos.model.JwtResponse;
 import tacos.model.LoginForm;
 import tacos.repo.UserRepository;
 import tacos.security.JwtProvider;
@@ -43,7 +45,10 @@ public class UserLoginControllerAPI {
 		
 		String jwt = jwtProvider.generateJwtToken(authentication);
 		
-		return new ResponseEntity<User>(new User(), HttpStatus.ACCEPTED);
+		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+		
+		return new ResponseEntity<JwtResponse>(
+				new JwtResponse(jwt, userDetails.getUsername(), userDetails.getAuthorities()), HttpStatus.ACCEPTED);
 	}
 
 	@GetMapping
